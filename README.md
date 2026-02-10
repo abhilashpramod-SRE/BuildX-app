@@ -51,7 +51,7 @@ Current setup uses a pluggable backend interface:
 Replace placeholder methods in `lib/services/backend_service.dart` with real SDK calls.
 
 ## Offline Support
-
+.
 `OfflineSyncService` queues write operations when offline and replays queued actions when back online.
 
 ## Run

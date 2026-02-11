@@ -86,6 +86,21 @@ class AppViewModel extends ChangeNotifier {
       .where((e) => e.status == ExpenseStatus.approved)
       .toList(growable: false);
 
+
+  List<Expense> approvedExpensesByClient(String? clientId) {
+    return repository.expenses.where((e) {
+      final approved = e.status == ExpenseStatus.approved;
+      final clientMatch = clientId == null || clientId.isEmpty || e.clientId == clientId;
+      return approved && clientMatch;
+    }).toList(growable: false);
+  }
+
+  List<Expense> expensesByClient(String clientId) {
+    return repository.expenses
+        .where((e) => e.clientId == clientId)
+        .toList(growable: false);
+  }
+
   Future<void> approveExpense(Expense expense) async {
     await repository.approveExpense(expense, actor: currentUser?.name ?? 'Supervisor');
     notifyListeners();

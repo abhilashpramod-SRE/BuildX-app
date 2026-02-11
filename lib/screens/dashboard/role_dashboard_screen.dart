@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../../models/role.dart';
 import '../../viewmodels/app_view_model.dart';
 import '../approval/approval_screen.dart';
+import '../approval/approved_bills_screen.dart';
 import '../client/client_registration_screen.dart';
 import '../expense/expense_upload_screen.dart';
 import '../expense/submitted_bills_screen.dart';
+import '../invoice/consolidated_bill_screen.dart';
 import '../invoice/invoice_generation_screen.dart';
 import '../invoice/invoice_history_screen.dart';
 import '../widgets/expense_list_widget.dart';
@@ -34,7 +36,9 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         : const <NavigationDestination>[
             NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
             NavigationDestination(icon: Icon(Icons.approval), label: 'Approvals'),
+            NavigationDestination(icon: Icon(Icons.verified), label: 'Approved Bills'),
             NavigationDestination(icon: Icon(Icons.download), label: 'Generated Bills'),
+            NavigationDestination(icon: Icon(Icons.summarize), label: 'Consolidated'),
           ];
 
     return Scaffold(
@@ -89,19 +93,19 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
       );
     }
 
-    if (_index == 1) {
-      return const ApprovalContent();
-    }
-
-    if (_index == 2) {
-      return const InvoiceHistoryContent();
-    }
+    if (_index == 1) return const ApprovalContent();
+    if (_index == 2) return const ApprovedBillsContent();
+    if (_index == 3) return const InvoiceHistoryContent();
+    if (_index == 4) return const ConsolidatedBillContent();
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _cardAction('Bills Pending Approval', Icons.approval, () {
           setState(() => _index = 1);
+        }),
+        _cardAction('Approved Bills', Icons.verified, () {
+          setState(() => _index = 2);
         }),
         _cardAction('Register / Manage Clients', Icons.people, () {
           Navigator.push(
@@ -116,7 +120,10 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           );
         }),
         _cardAction('Generated Bills', Icons.download, () {
-          setState(() => _index = 2);
+          setState(() => _index = 3);
+        }),
+        _cardAction('Consolidated Client Bill', Icons.summarize, () {
+          setState(() => _index = 4);
         }),
         const SizedBox(height: 12),
         const ExpenseListWidget(title: 'Approved Bills', approvedOnly: true),

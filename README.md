@@ -23,12 +23,15 @@ Android-first Flutter application for construction expense tracking, supervisor 
 - Supervisor approval workflow:
   - Approve
   - Reject (mandatory reason)
-- Invoice generation from **approved expenses** by selected client
+- Invoice generation from **approved expenses** by selected client with multi-select item checkbox
+- Dedicated Approved Bills page with client filter
+- Consolidated Client Bill page: search client, view all client bills, generate single consolidated PDF with final total
 - Invoice History screen with **multiple download support** (each download creates a new timestamped PDF file)
 - A4 invoice PDF with company details, invoice number, date, client details, itemized list, total amount, watermark
 - Offline queue + manual sync toggle
 - Material 3 UI with modern Bottom Navigation + Card Layout
 - Navy + Orange professional theme with large tap targets
+- Role-based dashboard tabs for practical field usage
 - Backend abstraction stubs (Firebase/Supabase)
 
 ## Run on Android (Step-by-Step)
@@ -84,17 +87,26 @@ flutter run
 3. Approve/reject expenses.
 4. Open **Generate Invoice**.
 5. Search/select client.
-6. Generate invoice from approved items.
+6. Select one or more approved items in Generate Invoice and generate invoice.
 7. Verify invoice generated confirmation.
-8. Open **Generated Bills** and download selected bills.
+8. Open **Approved Bills** tab and test client filter.
+9. Open **Generated Bills** and download selected bills.
 
-### 4) Multiple downloads
+### 4) Consolidated client bill
+
+1. Open **Consolidated** tab.
+2. Search and select a client.
+3. Verify all bills for that client are listed with each bill as an item.
+4. Verify final consolidated total is shown.
+5. Generate consolidated bill PDF.
+
+### 5) Multiple downloads
 
 1. Open **Generated Bills**.
 2. Click download on an invoice multiple times.
 3. Confirm each download creates a unique timestamped PDF file.
 
-### 5) Offline + sync
+### 6) Offline + sync
 
 1. Turn app offline using top switch.
 2. Perform write actions (submit expense, etc.).

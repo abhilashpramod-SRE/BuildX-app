@@ -29,6 +29,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<AppViewModel>();
     final user = vm.currentUser!;
+    final hasInvoices = vm.invoiceHistory().isNotEmpty;
 
     final destinations = user.role == UserRole.contractor
         ? const <NavigationDestination>[
@@ -70,7 +71,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           )
         ],
       ),
-      body: _bodyForRole(user.role),
+      body: _bodyForRole(user.role, hasInvoices),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (idx) => setState(() => _index = idx),
@@ -132,6 +133,11 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
+        _metricCard('Bills Approved', '$approved', Icons.verified),
+        _metricCard('Registered Clients', '$clients', Icons.people),
+        _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
+        _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         _cardAction('Bills Pending Approval', Icons.approval, () {
           Navigator.push(
             context,

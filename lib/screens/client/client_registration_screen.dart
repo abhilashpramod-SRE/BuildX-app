@@ -15,15 +15,17 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _projectsController = TextEditingController();
+  final _projectInputController = TextEditingController();
+  final List<String> _projects = <String>[];
 
-  List<String> _parseProjects(String input) {
-    return input
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toSet()
-        .toList(growable: false);
+  void _addProject() {
+    final value = _projectInputController.text.trim();
+    if (value.isEmpty) return;
+    if (_projects.contains(value)) return;
+    setState(() {
+      _projects.add(value);
+      _projectInputController.clear();
+    });
   }
 
   @override
@@ -50,13 +52,38 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
             decoration: const InputDecoration(labelText: 'Client Phone Number'),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _projectsController,
-            decoration: const InputDecoration(
-              labelText: 'Projects (optional, comma separated)',
-              helperText: 'Example: Tower A, Villa Phase 2, Site 17',
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _projectInputController,
+                  decoration: const InputDecoration(
+                    labelText: 'Project (Optional)',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _addProject,
+                icon: const Icon(Icons.add),
+                label: const Text('Add'),
+              ),
+            ],
           ),
+          const SizedBox(height: 8),
+          if (_projects.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _projects
+                  .map(
+                    (p) => Chip(
+                      label: Text(p),
+                      onDeleted: () => setState(() => _projects.remove(p)),
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
@@ -64,13 +91,14 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
                 name: _nameController.text.trim(),
                 address: _addressController.text.trim(),
                 phone: _phoneController.text.trim(),
-                projects: _parseProjects(_projectsController.text),
+                projects: _projects,
               );
               if (!mounted) return;
               _nameController.clear();
               _addressController.clear();
               _phoneController.clear();
-              _projectsController.clear();
+              _projectInputController.clear();
+              setState(() => _projects.clear());
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Client created with ID: ${client.id}')),
               );
@@ -88,7 +116,7 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
                 child: ListTile(
                   title: Text(c.name),
                   subtitle: Text(
-                    '${c.phone}\n${c.address}\nProjects: ${c.projects.isEmpty ? '-' : c.projects.join(', ')}',
+                    '${c.phone}\n${c.address}\n${c.projects.isEmpty ? '-' : c.projects.join(', ')}',
                   ),
                   isThreeLine: true,
                   trailing: IconButton(
@@ -107,45 +135,80 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
     final nameController = TextEditingController(text: client.name);
     final addressController = TextEditingController(text: client.address);
     final phoneController = TextEditingController(text: client.phone);
-    final projectsController = TextEditingController(text: client.projects.join(', '));
+    final projectController = TextEditingController();
+    final projects = List<String>.from(client.projects);
 
     await showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Edit Client'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Client Name')),
-              const SizedBox(height: 10),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Client Address')),
-              const SizedBox(height: 10),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Client Phone Number')),
-              const SizedBox(height: 10),
-              TextField(
-                controller: projectsController,
-                decoration: const InputDecoration(labelText: 'Projects (optional, comma separated)'),
-              ),
-            ],
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Edit Client'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Client Name')),
+                const SizedBox(height: 10),
+                TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Client Address')),
+                const SizedBox(height: 10),
+                TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Client Phone Number')),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: projectController,
+                        decoration: const InputDecoration(labelText: 'Project (Optional)'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final value = projectController.text.trim();
+                        if (value.isEmpty || projects.contains(value)) return;
+                        setStateDialog(() {
+                          projects.add(value);
+                          projectController.clear();
+                        });
+                      },
+                      child: const Text('Add'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (projects.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: projects
+                        .map(
+                          (p) => Chip(
+                            label: Text(p),
+                            onDeleted: () => setStateDialog(() => projects.remove(p)),
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+              ],
+            ),
           ),
+          actions: [
+            OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () {
+                vm.updateClient(
+                  clientId: client.id,
+                  name: nameController.text.trim(),
+                  address: addressController.text.trim(),
+                  phone: phoneController.text.trim(),
+                  projects: projects,
+                );
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            )
+          ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              vm.updateClient(
-                clientId: client.id,
-                name: nameController.text.trim(),
-                address: addressController.text.trim(),
-                phone: phoneController.text.trim(),
-                projects: _parseProjects(projectsController.text),
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          )
-        ],
       ),
     );
   }

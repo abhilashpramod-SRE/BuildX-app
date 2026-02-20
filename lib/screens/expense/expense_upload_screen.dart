@@ -69,6 +69,7 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
             ),
           const SizedBox(height: 8),
           DropdownButtonFormField<Client>(
+            isExpanded: true,
             value: _selectedClient,
             items: clients
                 .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
@@ -104,6 +105,7 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
           const SizedBox(height: 12),
           if (projects.length > 1)
             DropdownButtonFormField<String>(
+              isExpanded: true,
               value: _selectedProject,
               items: projects
                   .map((p) => DropdownMenuItem(value: p, child: Text(p)))

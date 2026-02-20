@@ -50,6 +50,7 @@ class _ApprovedBillsContentState extends State<ApprovedBillsContent> {
       padding: const EdgeInsets.all(16),
       children: [
         DropdownButtonFormField<String?>(
+          isExpanded: true,
           value: _clientId,
           decoration: const InputDecoration(labelText: 'Filter by Client'),
           items: [

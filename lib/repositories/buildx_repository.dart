@@ -24,13 +24,13 @@ class BuildXRepository {
   final List<AuditLog> _auditLogs = <AuditLog>[];
 
   CompanyProfile _ownerProfile = const CompanyProfile(
-    name: 'VIndia',
-    tagline: 'Infrasec Pvt Ltd',
-    address: '42 Industrial Layout, Bengaluru',
-    gstinUin: '32AAHCV5346C1ZK',
-    stateName: 'Kerala',
-    stateCode: '32',
-    emailId: 'support.vindia@gmail.com',
+    name: '',
+    tagline: '',
+    address: '',
+    gstinUin: '',
+    stateName: '',
+    stateCode: '',
+    emailId: '',
   );
 
   List<Expense> get expenses => List<Expense>.unmodifiable(_expenses);

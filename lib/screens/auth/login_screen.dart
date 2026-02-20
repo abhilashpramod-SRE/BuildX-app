@@ -29,6 +29,14 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Text(
+                    'BuildX',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                  ),
+                  const SizedBox(height: 14),
                   Icon(
                     Icons.receipt_long_rounded,
                     size: 96,
@@ -57,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<UserRole>(
                     value: _selectedRole,
+                    isExpanded: true,
                     items: UserRole.values
                         .map(
                           (role) => DropdownMenuItem(

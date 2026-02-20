@@ -74,6 +74,7 @@ class _SubmittedBillsContentState extends State<SubmittedBillsContent> {
           ],
         ),
         DropdownButtonFormField<String?>(
+          isExpanded: true,
           value: _clientId,
           decoration: const InputDecoration(labelText: 'Filter by Client'),
           items: [
@@ -86,6 +87,7 @@ class _SubmittedBillsContentState extends State<SubmittedBillsContent> {
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<ExpenseStatus?>(
+          isExpanded: true,
           value: _status,
           decoration: const InputDecoration(labelText: 'Filter by Status'),
           items: [
@@ -98,6 +100,7 @@ class _SubmittedBillsContentState extends State<SubmittedBillsContent> {
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String?>(
+          isExpanded: true,
           value: _project,
           decoration: const InputDecoration(labelText: 'Filter by Project'),
           items: [

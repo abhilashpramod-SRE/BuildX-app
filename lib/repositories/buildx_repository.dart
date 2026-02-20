@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/audit_log.dart';
 import '../models/client.dart';
+import '../models/company_profile.dart';
 import '../models/expense.dart';
 import '../models/invoice.dart';
 import '../models/user.dart';
@@ -22,10 +23,25 @@ class BuildXRepository {
   final List<Invoice> _invoices = <Invoice>[];
   final List<AuditLog> _auditLogs = <AuditLog>[];
 
+  CompanyProfile _ownerProfile = const CompanyProfile(
+    name: 'VIndia',
+    tagline: 'Infrasec Pvt Ltd',
+    address: '42 Industrial Layout, Bengaluru',
+    gstinUin: '32AAHCV5346C1ZK',
+    stateName: 'Kerala',
+    stateCode: '32',
+    emailId: 'support.vindia@gmail.com',
+  );
+
   List<Expense> get expenses => List<Expense>.unmodifiable(_expenses);
   List<Client> get clients => List<Client>.unmodifiable(_clients);
   List<Invoice> get invoices => List<Invoice>.unmodifiable(_invoices);
   List<AuditLog> get auditLogs => List<AuditLog>.unmodifiable(_auditLogs);
+  CompanyProfile get ownerProfile => _ownerProfile;
+
+  void updateOwnerProfile(CompanyProfile profile) {
+    _ownerProfile = profile;
+  }
 
   Future<void> submitExpense(Expense expense) async {
     _expenses.add(expense);
@@ -82,6 +98,7 @@ class BuildXRepository {
         client: client,
         items: [expense],
         date: DateTime.now(),
+        companyProfile: _ownerProfile,
         notes: 'Auto-generated on expense approval.',
       ),
     );
@@ -148,6 +165,7 @@ class BuildXRepository {
       client: client,
       items: items,
       date: DateTime.now(),
+      companyProfile: _ownerProfile,
       notes: notes,
     );
 

@@ -49,7 +49,7 @@ class _InvoiceHistoryContentState extends State<InvoiceHistoryContent> {
       padding: const EdgeInsets.all(16),
       children: [
         if (invoices.isEmpty)
-          const Center(child: Text('No generated bills found.'))
+          const Center(child: Text('Nothing to show.'))
         else ...[
           ...invoices.map(
             (inv) => Card(

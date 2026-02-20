@@ -11,6 +11,7 @@ import '../expense/submitted_bills_screen.dart';
 import '../invoice/consolidated_bill_screen.dart';
 import '../invoice/invoice_generation_screen.dart';
 import '../invoice/invoice_history_screen.dart';
+import '../profile/owner_profile_screen.dart';
 import '../widgets/expense_list_widget.dart';
 
 class RoleDashboardScreen extends StatefulWidget {
@@ -46,10 +47,10 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         actions: [
           Row(
             children: [
-              const Text('Offline', style: TextStyle(color: Colors.white)),
+              const Text('Online', style: TextStyle(color: Colors.white)),
               Switch(
                 value: vm.isOnline,
-                onChanged: vm.setOnline,
+                onChanged: (v) async => vm.setOnline(v),
                 activeColor: Colors.orange,
               ),
             ],
@@ -112,6 +113,12 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
+          );
+        }),
+        _cardAction('Owner Profile', Icons.business, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OwnerProfileScreen()),
           );
         }),
         _cardAction('Generate Invoice', Icons.receipt_long, () {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme.dart';
 import '../../models/client.dart';
 import '../../viewmodels/app_view_model.dart';
 
@@ -64,14 +65,14 @@ class _ApprovedBillsContentState extends State<ApprovedBillsContent> {
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (bills.isEmpty)
-          const Center(child: Text('No approved bills found for selected client.'))
+          const Center(child: Text('Nothing to show.'))
         else
           ...bills.map(
             (e) => Card(
               child: ListTile(
                 title: Text('${e.item} • ₹${e.amount.toStringAsFixed(2)}'),
                 subtitle: Text('${e.clientName} • ${DateFormat('dd MMM yyyy').format(e.date)}'),
-                trailing: const Icon(Icons.check_circle, color: Colors.green),
+                trailing: const Icon(Icons.check_circle, color: BuildXTheme.successGreen),
               ),
             ),
           ),

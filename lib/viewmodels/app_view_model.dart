@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../models/client.dart';
+import '../models/company_profile.dart';
 import '../models/expense.dart';
 import '../models/invoice.dart';
 import '../models/role.dart';
@@ -25,6 +26,7 @@ class AppViewModel extends ChangeNotifier {
   AppUser? get currentUser => auth.currentUser;
   bool get isOnline => repository.syncService.isOnline;
   int get pendingOfflineActions => repository.syncService.pendingActions;
+  CompanyProfile get ownerProfile => repository.ownerProfile;
 
   Future<void> login(String identity, String password, UserRole role) async {
     await auth.login(identity: identity, password: password, role: role);
@@ -43,6 +45,11 @@ class AppViewModel extends ChangeNotifier {
 
   Future<void> syncNow() async {
     await repository.syncService.sync();
+    notifyListeners();
+  }
+
+  void updateOwnerProfile(CompanyProfile profile) {
+    repository.updateOwnerProfile(profile);
     notifyListeners();
   }
 
@@ -85,7 +92,6 @@ class AppViewModel extends ChangeNotifier {
   List<Expense> approvedExpenses() => repository.expenses
       .where((e) => e.status == ExpenseStatus.approved)
       .toList(growable: false);
-
 
   List<Expense> approvedExpensesByClient(String? clientId) {
     return repository.expenses.where((e) {

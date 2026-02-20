@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme.dart';
 import '../../models/expense.dart';
 import '../../viewmodels/app_view_model.dart';
 
@@ -58,14 +59,14 @@ class ExpenseListWidget extends StatelessWidget {
 
   Widget _statusChip(ExpenseStatus status) {
     final color = switch (status) {
-      ExpenseStatus.pending => Colors.orange,
-      ExpenseStatus.approved => Colors.green,
+      ExpenseStatus.pending => BuildXTheme.accentOrange,
+      ExpenseStatus.approved => BuildXTheme.successGreen,
       ExpenseStatus.rejected => Colors.red,
     };
     return Chip(
       label: Text(status.name.toUpperCase()),
       backgroundColor: color.withOpacity(0.15),
-      labelStyle: TextStyle(color: color),
+      labelStyle: TextStyle(color: color, fontWeight: FontWeight.w600),
     );
   }
 }

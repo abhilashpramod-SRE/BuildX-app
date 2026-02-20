@@ -103,10 +103,11 @@ class _ConsolidatedBillContentState extends State<ConsolidatedBillContent> {
           Card(
             color: Theme.of(context).colorScheme.secondaryContainer,
             child: ListTile(
-              title: const Text('Final Consolidated Total'),
+              title: const Text('Total Amount Due'),
+              subtitle: const Text('Final Consolidated Total'),
               trailing: Text(
                 '₹${total.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
               ),
             ),
           ),

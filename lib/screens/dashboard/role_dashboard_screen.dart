@@ -47,10 +47,10 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         actions: [
           Row(
             children: [
-              const Text('Offline', style: TextStyle(color: Colors.white)),
+              const Text('Online', style: TextStyle(color: Colors.white)),
               Switch(
                 value: vm.isOnline,
-                onChanged: vm.setOnline,
+                onChanged: (v) async => vm.setOnline(v),
                 activeColor: Colors.orange,
               ),
             ],

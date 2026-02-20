@@ -126,12 +126,14 @@ class BuildXRepository {
     required String name,
     required String address,
     required String phone,
+    List<String>? projects,
   }) async {
     final client = Client(
       id: 'CL-${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       address: address,
       phone: phone,
+      projects: projects,
     );
     _clients.add(client);
     _auditLogs.add(
@@ -144,6 +146,31 @@ class BuildXRepository {
     );
     await syncService.enqueueOrRun(() => backend.createClient(client));
     return client;
+  }
+
+  void updateClient({
+    required String clientId,
+    required String name,
+    required String address,
+    required String phone,
+    List<String>? projects,
+  }) {
+    final index = _clients.indexWhere((c) => c.id == clientId);
+    if (index == -1) return;
+    _clients[index] = _clients[index].copyWith(
+      name: name,
+      address: address,
+      phone: phone,
+      projects: projects,
+    );
+    _auditLogs.add(
+      AuditLog(
+        timestamp: DateTime.now(),
+        actor: 'Supervisor',
+        action: 'UPDATE_CLIENT',
+        entityId: clientId,
+      ),
+    );
   }
 
   List<Client> searchClients(String query) {

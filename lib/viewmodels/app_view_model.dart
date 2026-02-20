@@ -38,8 +38,11 @@ class AppViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setOnline(bool value) {
+  Future<void> setOnline(bool value) async {
     repository.syncService.isOnline = value;
+    if (value) {
+      await repository.syncService.sync();
+    }
     notifyListeners();
   }
 
@@ -122,13 +125,42 @@ class AppViewModel extends ChangeNotifier {
     required String name,
     required String address,
     required String phone,
+    List<String>? projects,
   }) async {
-    final client =
-        await repository.createClient(name: name, address: address, phone: phone);
+    final client = await repository.createClient(
+      name: name,
+      address: address,
+      phone: phone,
+      projects: projects,
+    );
     notifyListeners();
     return client;
   }
 
+
+  void updateClient({
+    required String clientId,
+    required String name,
+    required String address,
+    required String phone,
+    List<String>? projects,
+  }) {
+    repository.updateClient(
+      clientId: clientId,
+      name: name,
+      address: address,
+      phone: phone,
+      projects: projects,
+    );
+    notifyListeners();
+  }
+
+  List<String> projectsForClient(String? clientId) {
+    if (clientId == null || clientId.isEmpty) return <String>[];
+    final clients = repository.clients.where((c) => c.id == clientId);
+    if (clients.isEmpty) return <String>[];
+    return clients.first.projects;
+  }
   List<Client> searchClients(String query) => repository.searchClients(query);
 
   List<Client> allClients() => repository.clients;

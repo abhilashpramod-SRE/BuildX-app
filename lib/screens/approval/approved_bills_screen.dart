@@ -65,7 +65,7 @@ class _ApprovedBillsContentState extends State<ApprovedBillsContent> {
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         if (bills.isEmpty)
-          const Center(child: Text('No approved bills found for selected client.'))
+          const Center(child: Text('Nothing to show.'))
         else
           ...bills.map(
             (e) => Card(

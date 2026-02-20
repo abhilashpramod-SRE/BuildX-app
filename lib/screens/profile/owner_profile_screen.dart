@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/company_profile.dart';
@@ -48,6 +49,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickLogo() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => _logoPathController.text = picked.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.read<AppViewModel>();
@@ -65,6 +74,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           _field(_stateCodeController, 'State Code'),
           _field(_emailController, 'Company Email Id'),
           _field(_logoPathController, 'Logo Path on Device (optional)'),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _pickLogo,
+            icon: const Icon(Icons.image),
+            label: const Text('Upload Company Logo'),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
@@ -83,8 +98,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
               vm.updateOwnerProfile(profile);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Owner profile updated for new invoices.')),
+                const SnackBar(content: Text('Owner profile updated.')),
               );
+              Navigator.pop(context);
             },
             child: const Text('Save Profile'),
           )

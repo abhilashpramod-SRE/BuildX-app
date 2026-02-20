@@ -37,6 +37,10 @@ class ApprovalContent extends StatelessWidget {
     final vm = context.watch<AppViewModel>();
     final pending = vm.pendingExpenses();
 
+    if (pending.isEmpty) {
+      return const Center(child: Text('Nothing to show.'));
+    }
+
     return ListView.builder(
       itemCount: pending.length,
       itemBuilder: (context, index) {

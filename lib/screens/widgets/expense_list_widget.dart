@@ -40,7 +40,7 @@ class ExpenseListWidget extends StatelessWidget {
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             if (expenses.isEmpty)
-              const Text('No entries yet.')
+              const Text('Nothing to show.')
             else
               ...expenses.map(
                 (e) => ListTile(

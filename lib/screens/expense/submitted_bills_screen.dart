@@ -115,7 +115,7 @@ class _SubmittedBillsContentState extends State<SubmittedBillsContent> {
         ),
         const SizedBox(height: 8),
         if (expenses.isEmpty)
-          const Center(child: Text('No submitted bills found for selected filters.'))
+          const Center(child: Text('Nothing to show.'))
         else
           ...expenses.map(
             (e) => Card(

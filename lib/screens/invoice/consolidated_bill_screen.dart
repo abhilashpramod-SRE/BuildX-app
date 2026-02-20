@@ -88,7 +88,7 @@ class _ConsolidatedBillContentState extends State<ConsolidatedBillContent> {
           ),
           const SizedBox(height: 8),
           if (bills.isEmpty)
-            const Text('No bills found for this client.')
+            const Text('Nothing to show.')
           else
             ...bills.map(
               (bill) => Card(

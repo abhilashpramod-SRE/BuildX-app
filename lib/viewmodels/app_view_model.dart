@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../models/client.dart';
+import '../models/company_profile.dart';
 import '../models/expense.dart';
 import '../models/invoice.dart';
 import '../models/role.dart';
@@ -25,6 +26,7 @@ class AppViewModel extends ChangeNotifier {
   AppUser? get currentUser => auth.currentUser;
   bool get isOnline => repository.syncService.isOnline;
   int get pendingOfflineActions => repository.syncService.pendingActions;
+  CompanyProfile get ownerProfile => repository.ownerProfile;
 
   Future<void> login(String identity, String password, UserRole role) async {
     await auth.login(identity: identity, password: password, role: role);
@@ -36,13 +38,21 @@ class AppViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setOnline(bool value) {
+  Future<void> setOnline(bool value) async {
     repository.syncService.isOnline = value;
+    if (value) {
+      await repository.syncService.sync();
+    }
     notifyListeners();
   }
 
   Future<void> syncNow() async {
     await repository.syncService.sync();
+    notifyListeners();
+  }
+
+  void updateOwnerProfile(CompanyProfile profile) {
+    repository.updateOwnerProfile(profile);
     notifyListeners();
   }
 
@@ -86,7 +96,6 @@ class AppViewModel extends ChangeNotifier {
       .where((e) => e.status == ExpenseStatus.approved)
       .toList(growable: false);
 
-
   List<Expense> approvedExpensesByClient(String? clientId) {
     return repository.expenses.where((e) {
       final approved = e.status == ExpenseStatus.approved;
@@ -116,13 +125,42 @@ class AppViewModel extends ChangeNotifier {
     required String name,
     required String address,
     required String phone,
+    List<String>? projects,
   }) async {
-    final client =
-        await repository.createClient(name: name, address: address, phone: phone);
+    final client = await repository.createClient(
+      name: name,
+      address: address,
+      phone: phone,
+      projects: projects,
+    );
     notifyListeners();
     return client;
   }
 
+
+  void updateClient({
+    required String clientId,
+    required String name,
+    required String address,
+    required String phone,
+    List<String>? projects,
+  }) {
+    repository.updateClient(
+      clientId: clientId,
+      name: name,
+      address: address,
+      phone: phone,
+      projects: projects,
+    );
+    notifyListeners();
+  }
+
+  List<String> projectsForClient(String? clientId) {
+    if (clientId == null || clientId.isEmpty) return <String>[];
+    final clients = repository.clients.where((c) => c.id == clientId);
+    if (clients.isEmpty) return <String>[];
+    return clients.first.projects;
+  }
   List<Client> searchClients(String query) => repository.searchClients(query);
 
   List<Client> allClients() => repository.clients;

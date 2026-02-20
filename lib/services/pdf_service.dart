@@ -135,7 +135,6 @@ class PdfService {
         decoration: pw.BoxDecoration(
           borderRadius: pw.BorderRadius.circular(12),
         ),
-        clipBehavior: pw.Clip.antiAlias,
         child: pw.Image(pw.MemoryImage(logoBytes), fit: pw.BoxFit.cover),
       );
     }

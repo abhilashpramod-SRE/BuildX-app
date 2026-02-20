@@ -41,7 +41,7 @@ class BuildXTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 1.5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

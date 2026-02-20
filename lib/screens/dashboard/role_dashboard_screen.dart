@@ -33,16 +33,13 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
 
     final destinations = user.role == UserRole.contractor
         ? const <NavigationDestination>[
+            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
             NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
             NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Submitted Bills'),
           ]
-        : <NavigationDestination>[
-            const NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
-            const NavigationDestination(icon: Icon(Icons.verified), label: 'Approved Bills'),
-            if (hasInvoices) ...const [
-              NavigationDestination(icon: Icon(Icons.download), label: 'Generated Bills'),
-              NavigationDestination(icon: Icon(Icons.summarize), label: 'Consolidated'),
-            ],
+        : const <NavigationDestination>[
+            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+            NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
           ];
 
     if (_index >= destinations.length) {
@@ -83,53 +80,56 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _bodyForRole(UserRole role, bool hasInvoices) {
+  Widget _bodyForRole(UserRole role) {
     final vm = context.watch<AppViewModel>();
 
     if (role == UserRole.contractor) {
-      if (_index == 1) return const SubmittedBillsContent();
-
-      final my = vm.myExpenses();
-      final pending = my.where((e) => e.status == ExpenseStatus.pending).length;
-      final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
-      final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
-
-      return ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _metricCard('Total Expenses', '${my.length}', Icons.receipt),
-          _metricCard('Pending', '$pending', Icons.hourglass_top),
-          _metricCard('Approved', '$approved', Icons.check_circle),
-          _metricCard('Rejected', '$rejected', Icons.cancel),
-          _cardAction('Upload Expense', Icons.upload_file, () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ExpenseUploadScreen()),
-            );
-          }),
-          const SizedBox(height: 12),
-          const ExpenseListWidget(title: 'My Recent Submitted Bills', mineOnly: true),
-        ],
-      );
+      if (_index == 2) return const SubmittedBillsContent();
+      if (_index == 1) return _contractorDashboard(vm);
+      return _contractorHome();
     }
 
-    if (_index == 1) return const ApprovedBillsContent();
-    if (hasInvoices && _index == 2) return const InvoiceHistoryContent();
-    if (hasInvoices && _index == 3) return const ConsolidatedBillContent();
+    if (_index == 1) {
+      return _ownerDashboard(vm);
+    }
 
-    final pending = vm.pendingExpenses().length;
-    final approved = vm.approvedExpenses().length;
-    final clients = vm.allClients().length;
-    final invoicesGenerated = vm.invoiceHistory().length;
-    final invoicedExpenseIds = vm
-        .invoiceHistory()
-        .expand((inv) => inv.items.map((e) => e.id))
-        .toSet();
-    final toGenerate = vm
-        .approvedExpenses()
-        .where((e) => !invoicedExpenseIds.contains(e.id))
-        .length;
+    return _ownerHome();
+  }
 
+  Widget _contractorHome() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _cardAction('Upload Expense', Icons.upload_file, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ExpenseUploadScreen()),
+          );
+        }),
+        const SizedBox(height: 12),
+        const ExpenseListWidget(title: 'My Recent Submitted Bills', mineOnly: true),
+      ],
+    );
+  }
+
+  Widget _contractorDashboard(AppViewModel vm) {
+    final my = vm.myExpenses();
+    final pending = my.where((e) => e.status == ExpenseStatus.pending).length;
+    final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
+    final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _metricCard('Total Expenses', '${my.length}', Icons.receipt),
+        _metricCard('Pending', '$pending', Icons.hourglass_top),
+        _metricCard('Approved', '$approved', Icons.check_circle),
+        _metricCard('Rejected', '$rejected', Icons.cancel),
+      ],
+    );
+  }
+
+  Widget _ownerHome() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -168,20 +168,44 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const InvoiceGenerationScreen()),
           );
         }),
-        if (hasInvoices)
-          _cardAction('Generated Bills', Icons.download, () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const InvoiceHistoryScreen()),
-            );
-          }),
-        if (hasInvoices)
-          _cardAction('Consolidated Client Bill', Icons.summarize, () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ConsolidatedBillScreen()),
-            );
-          }),
+        _cardAction('Generated Bills', Icons.download, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const InvoiceHistoryScreen()),
+          );
+        }),
+        _cardAction('Consolidated Client Bill', Icons.summarize, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ConsolidatedBillScreen()),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _ownerDashboard(AppViewModel vm) {
+    final pending = vm.pendingExpenses().length;
+    final approved = vm.approvedExpenses().length;
+    final clients = vm.allClients().length;
+    final invoicesGenerated = vm.invoiceHistory().length;
+    final invoicedExpenseIds = vm
+        .invoiceHistory()
+        .expand((inv) => inv.items.map((e) => e.id))
+        .toSet();
+    final toGenerate = vm
+        .approvedExpenses()
+        .where((e) => !invoicedExpenseIds.contains(e.id))
+        .length;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
+        _metricCard('Bills Approved', '$approved', Icons.verified),
+        _metricCard('Registered Clients', '$clients', Icons.people),
+        _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
+        _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         const SizedBox(height: 12),
         const ExpenseListWidget(title: 'Pending Bills for Approval'),
       ],

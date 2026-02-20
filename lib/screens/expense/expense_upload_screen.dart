@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,6 +23,7 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
   DateTime _selectedDate = DateTime.now();
   String? _imagePath;
   Client? _selectedClient;
+  String? _selectedProject;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -31,11 +33,24 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
     }
   }
 
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDate: _selectedDate,
+    );
+    if (date != null) {
+      setState(() => _selectedDate = date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.read<AppViewModel>();
     final user = vm.currentUser!;
     final clients = vm.allClients();
+    final projects = _selectedClient?.projects ?? <String>[];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Expense Bill')),
@@ -47,18 +62,33 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  'No clients found. Please ask Supervisor/Owner to add a client before uploading expenses.',
+                  'Nothing to show.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ),
           const SizedBox(height: 8),
           DropdownButtonFormField<Client>(
+            isExpanded: true,
             value: _selectedClient,
             items: clients
                 .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
                 .toList(),
-            onChanged: clients.isEmpty ? null : (v) => setState(() => _selectedClient = v),
+            onChanged: clients.isEmpty
+                ? null
+                : (v) {
+                    setState(() {
+                      _selectedClient = v;
+                      final p = v?.projects ?? <String>[];
+                      if (p.length == 1) {
+                        _selectedProject = p.first;
+                        _projectController.text = p.first;
+                      } else {
+                        _selectedProject = null;
+                        _projectController.clear();
+                      }
+                    });
+                  },
             decoration: const InputDecoration(labelText: 'Client *'),
           ),
           const SizedBox(height: 12),
@@ -73,29 +103,42 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
             decoration: const InputDecoration(labelText: 'Amount'),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _projectController,
-            decoration: const InputDecoration(
-              labelText: 'Project (Optional)',
-              helperText: 'Used for contractor-side filtering',
+          if (projects.length > 1)
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              value: _selectedProject,
+              items: projects
+                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                  .toList(),
+              onChanged: (v) => setState(() => _selectedProject = v),
+              decoration: const InputDecoration(
+                labelText: 'Project (Optional)',
+              ),
+            )
+          else
+            TextField(
+              controller: _projectController,
+              readOnly: projects.length == 1,
+              decoration: InputDecoration(
+                labelText: 'Project (Optional)',
+                helperText: projects.length == 1
+                    ? 'Default project selected from client'
+                    : 'Used for contractor-side filtering',
+              ),
             ),
-          ),
           const SizedBox(height: 12),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text('Date: ${_selectedDate.toLocal().toString().split(' ').first}'),
-            trailing: const Icon(Icons.calendar_month),
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                initialDate: _selectedDate,
-              );
-              if (date != null) {
-                setState(() => _selectedDate = date);
-              }
-            },
+          InkWell(
+            onTap: _pickDate,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'Date',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.calendar_month),
+                  onPressed: _pickDate,
+                ),
+              ),
+              child: Text(DateFormat('yyyy-MM-dd').format(_selectedDate)),
+            ),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -120,6 +163,12 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
                       return;
                     }
 
+                    final resolvedProject = projects.length > 1
+                        ? _selectedProject
+                        : (_projectController.text.trim().isEmpty
+                            ? null
+                            : _projectController.text.trim());
+
                     final expense = Expense(
                       id: const Uuid().v4(),
                       item: _itemController.text.trim(),
@@ -128,9 +177,7 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
                       clientId: _selectedClient!.id,
                       clientName: _selectedClient!.name,
                       submitter: user,
-                      project: _projectController.text.trim().isEmpty
-                          ? null
-                          : _projectController.text.trim(),
+                      project: resolvedProject,
                       billImagePath: _imagePath,
                       notes: _notesController.text.trim(),
                     );
@@ -139,6 +186,7 @@ class _ExpenseUploadScreenState extends State<ExpenseUploadScreen> {
                     if (!mounted) return;
                     setState(() {
                       _selectedClient = null;
+                      _selectedProject = null;
                       _itemController.clear();
                       _amountController.clear();
                       _projectController.clear();

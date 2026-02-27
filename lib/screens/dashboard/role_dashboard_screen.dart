@@ -118,6 +118,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
     final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
 
+  Widget _ownerHome() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [

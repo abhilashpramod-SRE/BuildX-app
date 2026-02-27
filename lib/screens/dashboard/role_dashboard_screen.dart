@@ -29,6 +29,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<AppViewModel>();
     final user = vm.currentUser!;
+    final hasInvoices = vm.invoiceHistory().isNotEmpty;
 
     final destinations = user.role == UserRole.contractor
         ? const <NavigationDestination>[
@@ -70,7 +71,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           )
         ],
       ),
-      body: _bodyForRole(user.role),
+      body: _bodyForRole(user.role, hasInvoices),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (idx) => setState(() => _index = idx),

@@ -80,9 +80,9 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _bodyForRole(UserRole role) {
+  Widget _bodyForRole(UserRole role, [bool? hasInvoices]) {
     final vm = context.watch<AppViewModel>();
-    final hasInvoices = vm.invoiceHistory().isNotEmpty;
+    final invoicesExist = hasInvoices ?? vm.invoiceHistory().isNotEmpty;
 
     if (role == UserRole.contractor) {
       if (_index == 2) return const SubmittedBillsContent();
@@ -91,7 +91,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     }
 
     if (_index == 1) return _ownerDashboard(vm);
-    return _ownerHome(hasInvoices);
+    return _ownerHome(invoicesExist);
   }
 
   Widget _contractorHome() {

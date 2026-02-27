@@ -80,7 +80,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _bodyForRole(UserRole role) {
+  Widget _bodyForRole(UserRole role, [bool hasInvoices = true]) {
     final vm = context.watch<AppViewModel>();
 
     if (role == UserRole.contractor) {
@@ -93,7 +93,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
       return _ownerDashboard(vm);
     }
 
-    return _ownerHome();
+    return _ownerHome(hasInvoices);
   }
 
   Widget _contractorHome() {
@@ -118,6 +118,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
     final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
 
+  Widget _ownerHome() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -129,15 +130,10 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _ownerHome() {
+  Widget _ownerHome([bool hasInvoices = true]) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
-        _metricCard('Bills Approved', '$approved', Icons.verified),
-        _metricCard('Registered Clients', '$clients', Icons.people),
-        _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
-        _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         _cardAction('Bills Pending Approval', Icons.approval, () {
           Navigator.push(
             context,
@@ -168,18 +164,20 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const InvoiceGenerationScreen()),
           );
         }),
-        _cardAction('Generated Bills', Icons.download, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const InvoiceHistoryScreen()),
-          );
-        }),
-        _cardAction('Consolidated Client Bill', Icons.summarize, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ConsolidatedBillScreen()),
-          );
-        }),
+        if (hasInvoices)
+          _cardAction('Generated Bills', Icons.download, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InvoiceHistoryScreen()),
+            );
+          }),
+        if (hasInvoices)
+          _cardAction('Consolidated Client Bill', Icons.summarize, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ConsolidatedBillScreen()),
+            );
+          }),
       ],
     );
   }
@@ -210,6 +208,24 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         const ExpenseListWidget(title: 'Pending Bills for Approval'),
       ],
     );
+  }
+
+
+  // Compatibility getters so older metric references remain valid.
+  int get pending => context.read<AppViewModel>().pendingExpenses().length;
+  int get approved =>
+      context.read<AppViewModel>().approvedExpenses().length;
+  int get clients => context.read<AppViewModel>().allClients().length;
+  int get invoicesGenerated =>
+      context.read<AppViewModel>().invoiceHistory().length;
+  int get toGenerate {
+    final vm = context.read<AppViewModel>();
+    final invoicedExpenseIds =
+        vm.invoiceHistory().expand((inv) => inv.items.map((e) => e.id)).toSet();
+    return vm
+        .approvedExpenses()
+        .where((e) => !invoicedExpenseIds.contains(e.id))
+        .length;
   }
 
   Widget _metricCard(String title, String value, IconData icon) {

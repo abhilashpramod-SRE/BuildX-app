@@ -21,47 +21,39 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withOpacity(0.85),
-                  ],
-                ),
-              ),
-              child: const Column(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'BuildX',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 14),
+                  Icon(
+                    Icons.receipt_long_rounded,
+                    size: 96,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 12),
                   Text(
-                    'Next-Gen Construction Management',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.white),
+                    'LOGIN',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
+                  const SizedBox(height: 24),
                   TextField(
                     controller: _identityController,
                     decoration: const InputDecoration(
-                      labelText: 'Email or Phone Number',
+                      labelText: 'Email ID',
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -73,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<UserRole>(
                     value: _selectedRole,
+                    isExpanded: true,
                     items: UserRole.values
                         .map(
                           (role) => DropdownMenuItem(
@@ -102,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

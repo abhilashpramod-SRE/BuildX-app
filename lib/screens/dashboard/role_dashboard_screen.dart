@@ -90,10 +90,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
       return _contractorHome();
     }
 
-    if (_index == 1) {
-      return _ownerDashboard(vm);
-    }
-
+    if (_index == 1) return _ownerDashboard(vm);
     return _ownerHome(hasInvoices);
   }
 
@@ -119,7 +116,6 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
     final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
 
-  Widget _ownerHome() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -131,19 +127,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _ownerHome([bool hasInvoices = true]) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _metricCard('Total Expenses', '${my.length}', Icons.receipt),
-        _metricCard('Pending', '$pending', Icons.hourglass_top),
-        _metricCard('Approved', '$approved', Icons.check_circle),
-        _metricCard('Rejected', '$rejected', Icons.cancel),
-      ],
-    );
-  }
-
-  Widget _ownerHome([bool hasInvoices = true]) {
+  Widget _ownerHome(bool hasInvoices) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -200,10 +184,8 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final approved = vm.approvedExpenses().length;
     final clients = vm.allClients().length;
     final invoicesGenerated = vm.invoiceHistory().length;
-    final invoicedExpenseIds = vm
-        .invoiceHistory()
-        .expand((inv) => inv.items.map((e) => e.id))
-        .toSet();
+    final invoicedExpenseIds =
+        vm.invoiceHistory().expand((inv) => inv.items.map((e) => e.id)).toSet();
     final toGenerate = vm
         .approvedExpenses()
         .where((e) => !invoicedExpenseIds.contains(e.id))
@@ -221,24 +203,6 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         const ExpenseListWidget(title: 'Pending Bills for Approval'),
       ],
     );
-  }
-
-
-  // Compatibility getters so older metric references remain valid.
-  int get pending => context.read<AppViewModel>().pendingExpenses().length;
-  int get approved =>
-      context.read<AppViewModel>().approvedExpenses().length;
-  int get clients => context.read<AppViewModel>().allClients().length;
-  int get invoicesGenerated =>
-      context.read<AppViewModel>().invoiceHistory().length;
-  int get toGenerate {
-    final vm = context.read<AppViewModel>();
-    final invoicedExpenseIds =
-        vm.invoiceHistory().expand((inv) => inv.items.map((e) => e.id)).toSet();
-    return vm
-        .approvedExpenses()
-        .where((e) => !invoicedExpenseIds.contains(e.id))
-        .length;
   }
 
   Widget _metricCard(String title, String value, IconData icon) {

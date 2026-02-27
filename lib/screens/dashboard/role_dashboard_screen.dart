@@ -80,8 +80,9 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     );
   }
 
-  Widget _bodyForRole(UserRole role, [bool hasInvoices = true]) {
+  Widget _bodyForRole(UserRole role) {
     final vm = context.watch<AppViewModel>();
+    final hasInvoices = vm.invoiceHistory().isNotEmpty;
 
     if (role == UserRole.contractor) {
       if (_index == 2) return const SubmittedBillsContent();
@@ -119,6 +120,18 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
 
   Widget _ownerHome() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _metricCard('Total Expenses', '${my.length}', Icons.receipt),
+        _metricCard('Pending', '$pending', Icons.hourglass_top),
+        _metricCard('Approved', '$approved', Icons.check_circle),
+        _metricCard('Rejected', '$rejected', Icons.cancel),
+      ],
+    );
+  }
+
+  Widget _ownerHome([bool hasInvoices = true]) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [

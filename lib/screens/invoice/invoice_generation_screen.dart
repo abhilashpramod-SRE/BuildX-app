@@ -98,11 +98,23 @@ class _InvoiceGenerationScreenState extends State<InvoiceGenerationScreen> {
           }),
           const SizedBox(height: 8),
           Card(
-            child: ListTile(
-              title: const Text('Selected Total'),
-              trailing: Text(
-                '₹${selectedItems.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total Amount Due',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '₹${selectedItems.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ],
               ),
             ),
           ),

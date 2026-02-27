@@ -29,6 +29,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<AppViewModel>();
     final user = vm.currentUser!;
+    final hasInvoices = vm.invoiceHistory().isNotEmpty;
 
     final destinations = user.role == UserRole.contractor
         ? const <NavigationDestination>[
@@ -70,7 +71,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           )
         ],
       ),
-      body: _bodyForRole(user.role),
+      body: _bodyForRole(user.role, hasInvoices),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (idx) => setState(() => _index = idx),
@@ -118,6 +119,19 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     final approved = my.where((e) => e.status == ExpenseStatus.approved).length;
     final rejected = my.where((e) => e.status == ExpenseStatus.rejected).length;
 
+  Widget _ownerHome() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _metricCard('Total Expenses', '${my.length}', Icons.receipt),
+        _metricCard('Pending', '$pending', Icons.hourglass_top),
+        _metricCard('Approved', '$approved', Icons.check_circle),
+        _metricCard('Rejected', '$rejected', Icons.cancel),
+      ],
+    );
+  }
+
+  Widget _ownerHome([bool hasInvoices = true]) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [

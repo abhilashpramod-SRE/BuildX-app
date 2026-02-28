@@ -116,4 +116,4 @@ flutter run
 
 ## Android build issue: `metadata.bin` / Flutter plugin loader
 
-If Android build fails with Gradle cache `metadata.bin` errors, follow the repair guide in [`docs/android-build-troubleshooting.md`](docs/android-build-troubleshooting.md).
+If Android build fails with Gradle cache `metadata.bin` errors, follow the repair guide in [`docs/android-build-troubleshooting.md`](docs/android-build-troubleshooting.md) and run the provided repair scripts (`scripts/repair_android_gradle_cache.ps1` for Windows or `scripts/repair_android_gradle_cache.sh` for macOS/Linux).

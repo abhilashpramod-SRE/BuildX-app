@@ -26,13 +26,34 @@ if (Test-Path (Join-Path $ProjectRoot "android/gradlew.bat")) {
 
 # 2) Remove corrupted transform metadata cache.
 $gradleUserHome = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE ".gradle" }
-$transformsPath = Join-Path $gradleUserHome "caches\8.14\transforms"
+$allTransformsPaths = @(
+  Get-ChildItem -Path (Join-Path $gradleUserHome "caches") -Directory -ErrorAction SilentlyContinue |
+    ForEach-Object { Join-Path $_.FullName "transforms" }
+)
 
-if (Test-Path $transformsPath) {
-  Write-Host "Deleting Gradle transforms cache at: $transformsPath"
-  Remove-Item -Path $transformsPath -Recurse -Force
+if ($allTransformsPaths.Count -gt 0) {
+  foreach ($transformsPath in $allTransformsPaths) {
+    if (Test-Path $transformsPath) {
+      Write-Host "Deleting Gradle transforms cache at: $transformsPath"
+      Remove-Item -Path $transformsPath -Recurse -Force
+    }
+  }
 } else {
-  Write-Host "Transforms path not found ($transformsPath). Skipping delete."
+  Write-Host "No Gradle transforms cache folders found under $gradleUserHome\caches"
+}
+
+# 2b) Remove plugin-resolution caches that frequently retain stale metadata.
+$pluginResolutionDirs = @(
+  (Join-Path $gradleUserHome "caches\jars-9"),
+  (Join-Path $gradleUserHome "caches\modules-2\files-2.1"),
+  (Join-Path $gradleUserHome "caches\modules-2\metadata-2.107")
+)
+
+foreach ($dir in $pluginResolutionDirs) {
+  if (Test-Path $dir) {
+    Write-Host "Deleting Gradle dependency cache at: $dir"
+    Remove-Item -Path $dir -Recurse -Force
+  }
 }
 
 # 3) Clear project build outputs.
@@ -47,6 +68,10 @@ if (Test-Path $androidBuildDir) {
   Write-Host "Removing android local Gradle dir: $androidBuildDir"
   Remove-Item -Path $androidBuildDir -Recurse -Force
 }
+
+# 4) Last resort for persistent lock/corruption: stop Java processes holding cache handles.
+Write-Host "Attempting to stop lingering Java/Gradle processes..."
+Get-Process -Name java, javaw, gradle -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 Write-Host "Done. Next steps:"
 Write-Host "  1) flutter clean"

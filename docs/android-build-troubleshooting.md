@@ -18,13 +18,25 @@ flutter pub get
 flutter run
 ```
 
+## Quick fix (macOS / Linux)
+
+```bash
+./scripts/repair_android_gradle_cache.sh
+flutter clean
+flutter pub get
+flutter run
+```
+
 ## Manual fallback
 
 1. Stop Gradle daemons:
    - `gradle --stop`
    - `android\gradlew.bat --stop` (if `android/` exists)
 2. Delete cache:
-   - `%USERPROFILE%\.gradle\caches\8.14\transforms`
+   - `%USERPROFILE%\.gradle\caches\*\transforms`
+   - `%USERPROFILE%\.gradle\caches\jars-*`
+   - `%USERPROFILE%\.gradle\caches\modules-2\files-2.1`
+   - `%USERPROFILE%\.gradle\caches\modules-2\metadata-*`
 3. Delete project temporary build data:
    - `<project>\build`
    - `<project>\android\.gradle`
@@ -35,4 +47,10 @@ flutter run
 
 ## Why this works
 
-`metadata.bin` read failures happen when Gradle transform cache entries are partially written or invalid. Clearing just the corrupted transform cache forces Gradle to regenerate it on the next build.
+`metadata.bin` read failures happen when Gradle transform or dependency cache entries are partially written, locked, or invalid. Clearing these cache folders forces Gradle to regenerate them on the next build.
+
+## If it still fails
+
+1. Reboot machine (ensures stale file handles are released).
+2. Upgrade Flutter to stable latest and re-run `flutter doctor`.
+3. Delete entire `%USERPROFILE%\.gradle\caches` folder as a final fallback.

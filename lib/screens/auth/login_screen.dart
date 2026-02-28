@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final logoPath = context.watch<AppViewModel>().ownerProfile.logoPath;
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -37,11 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                   ),
                   const SizedBox(height: 14),
-                  Icon(
-                    Icons.receipt_long_rounded,
-                    size: 96,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                  _buildLogo(logoPath),
                   const SizedBox(height: 12),
                   Text(
                     'LOGIN',
@@ -98,6 +98,36 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLogo(String? logoPath) {
+    final hasLogoPath = logoPath != null && logoPath.trim().isNotEmpty;
+    if (hasLogoPath && File(logoPath).existsSync()) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.file(
+          File(logoPath),
+          width: 96,
+          height: 96,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const _FallbackLogoIcon(),
+        ),
+      );
+    }
+    return const _FallbackLogoIcon();
+  }
+}
+
+class _FallbackLogoIcon extends StatelessWidget {
+  const _FallbackLogoIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.receipt_long_rounded,
+      size: 96,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }

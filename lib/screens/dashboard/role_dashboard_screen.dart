@@ -105,7 +105,11 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           );
         }),
         const SizedBox(height: 12),
-        const ExpenseListWidget(title: 'My Recent Submitted Bills', mineOnly: true),
+        const ExpenseListWidget(
+          title: 'My Recent Submitted Bills',
+          mineOnly: true,
+          emptyMessage: 'No submitted bills yet.',
+        ),
       ],
     );
   }
@@ -131,7 +135,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _cardAction('Bills Pending Approval', Icons.approval, () {
+        _cardAction('Pending Approval', Icons.approval, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ApprovalScreen()),
@@ -143,7 +147,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const ApprovedBillsScreen()),
           );
         }),
-        _cardAction('Register / Manage Clients', Icons.people, () {
+        _cardAction('Register Client', Icons.people, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),

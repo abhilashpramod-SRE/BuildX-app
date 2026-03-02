@@ -27,6 +27,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _logoPathController;
   bool _isEditing = true;
 
+  bool _isEditing = true;
+
   @override
   void initState() {
     super.initState();
@@ -56,9 +58,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Future<void> _pickLogo() async {
-    if (!_isEditing) {
-      return;
-    }
+    if (!_isEditing) return;
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
@@ -80,7 +80,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   void _saveProfile() {
-    final vm = context.read<AppViewModel>();
     final profile = CompanyProfile(
       name: _nameController.text.trim(),
       tagline: _taglineController.text.trim(),
@@ -93,7 +92,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           ? null
           : _logoPathController.text.trim(),
     );
-    vm.updateOwnerProfile(profile);
+
+    context.read<AppViewModel>().updateOwnerProfile(profile);
     setState(() => _isEditing = false);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Owner profile updated.')),
@@ -171,10 +171,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             label: const Text('Upload Company Logo'),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Uploaded Logo',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Uploaded Logo', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           _logoPreview(),
           const SizedBox(height: 16),
@@ -198,7 +195,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   ),
                 ),
               ],
-            )
+            ),
         ],
       ),
     );
@@ -287,10 +284,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             const SizedBox(height: 4),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -319,10 +313,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: const Color(0xFF42B994)),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w500),
-      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       trailing: onTap != null ? const Icon(Icons.chevron_right) : null,
       onTap: onTap,
     );

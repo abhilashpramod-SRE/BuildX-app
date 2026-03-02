@@ -107,6 +107,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     final approved = vm.approvedExpenses().length;
     final clients = vm.allClients().length;
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Profile'),

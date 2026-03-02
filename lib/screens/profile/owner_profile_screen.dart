@@ -25,6 +25,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _stateCodeController;
   late final TextEditingController _emailController;
   late final TextEditingController _logoPathController;
+
   bool _isEditing = true;
 
   @override
@@ -60,9 +61,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _logoPathController.text = picked.path);
-    }
+    if (picked == null || !mounted) return;
+
+    setState(() => _logoPathController.text = picked.path);
   }
 
   void _reloadFromSavedProfile() {
@@ -101,9 +102,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AppViewModel>();
-    final pending = vm.pendingExpenses().length;
-    final approved = vm.approvedExpenses().length;
-    final clients = vm.allClients().length;
 
     return Scaffold(
       appBar: AppBar(
@@ -120,83 +118,91 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _profileHeader(),
-          const SizedBox(height: 12),
-          _statStrip(pending: pending, approved: approved, clients: clients),
-          const SizedBox(height: 12),
-          _menuTile(Icons.person_outline, 'Personal Information'),
-          _menuTile(
-            Icons.people_outline,
-            'Register / Manage Clients',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
-              );
-            },
-          ),
-          _menuTile(
-            Icons.approval_outlined,
-            'Bills Pending Approval',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ApprovalScreen()),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Edit Details',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+      body: _buildBody(vm),
+    );
+  }
+
+  Widget _buildBody(AppViewModel vm) {
+    final pending = vm.pendingExpenses().length;
+    final approved = vm.approvedExpenses().length;
+    final clients = vm.allClients().length;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _profileHeader(),
+        const SizedBox(height: 12),
+        _statStrip(pending: pending, approved: approved, clients: clients),
+        const SizedBox(height: 12),
+        _menuTile(Icons.person_outline, 'Personal Information'),
+        _menuTile(
+          Icons.people_outline,
+          'Register / Manage Clients',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
+            );
+          },
+        ),
+        _menuTile(
+          Icons.approval_outlined,
+          'Bills Pending Approval',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ApprovalScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Edit Details',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 8),
+        _field(_nameController, 'Company Name'),
+        _field(_taglineController, 'Company Tagline / Legal Suffix'),
+        _field(_addressController, 'Company Address', maxLines: 2),
+        _field(_gstinController, 'GSTIN/UIN'),
+        _field(_stateNameController, 'State Name'),
+        _field(_stateCodeController, 'State Code'),
+        _field(_emailController, 'Company Email Id'),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _isEditing ? _pickLogo : null,
+          icon: const Icon(Icons.image),
+          label: const Text('Upload Company Logo'),
+        ),
+        const SizedBox(height: 16),
+        Text('Uploaded Logo', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        _logoPreview(),
+        const SizedBox(height: 16),
+        if (_isEditing)
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _saveProfile,
+                  child: const Text('Save Profile'),
                 ),
-          ),
-          const SizedBox(height: 8),
-          _field(_nameController, 'Company Name'),
-          _field(_taglineController, 'Company Tagline / Legal Suffix'),
-          _field(_addressController, 'Company Address', maxLines: 2),
-          _field(_gstinController, 'GSTIN/UIN'),
-          _field(_stateNameController, 'State Name'),
-          _field(_stateCodeController, 'State Code'),
-          _field(_emailController, 'Company Email Id'),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: _isEditing ? _pickLogo : null,
-            icon: const Icon(Icons.image),
-            label: const Text('Upload Company Logo'),
-          ),
-          const SizedBox(height: 16),
-          Text('Uploaded Logo', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          _logoPreview(),
-          const SizedBox(height: 16),
-          if (_isEditing)
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Save Profile'),
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    _reloadFromSavedProfile();
+                    setState(() => _isEditing = false);
+                  },
+                  child: const Text('Cancel'),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _reloadFromSavedProfile();
-                      setState(() => _isEditing = false);
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 

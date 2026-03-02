@@ -25,11 +25,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _stateCodeController;
   late final TextEditingController _emailController;
   late final TextEditingController _logoPathController;
-  bool _isEditing = true;
-
-  bool _isEditing = true;
-
-  bool _isEditing = true;
 
   bool _isEditing = true;
 
@@ -64,11 +59,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   Future<void> _pickLogo() async {
     if (!_isEditing) return;
 
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _logoPathController.text = picked.path);
-    }
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+    setState(() => _logoPathController.text = picked.path);
   }
 
   void _reloadFromSavedProfile() {
@@ -106,13 +99,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<AppViewModel>();
-    final pending = vm.pendingExpenses().length;
-    final approved = vm.approvedExpenses().length;
-    final clients = vm.allClients().length;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Profile'),
@@ -133,12 +119,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         children: [
           _profileHeader(),
           const SizedBox(height: 12),
-          _statStrip(pending: pending, approved: approved, clients: clients),
-          const SizedBox(height: 12),
           _menuTile(Icons.person_outline, 'Personal Information'),
           _menuTile(
             Icons.people_outline,
-            'Register / Manage Clients',
+            'Register/Manage Clients',
             onTap: () {
               Navigator.push(
                 context,
@@ -157,13 +141,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             },
           ),
           const SizedBox(height: 16),
-          Text(
-            'Edit Details',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 8),
           _field(_nameController, 'Company Name'),
           _field(_taglineController, 'Company Tagline / Legal Suffix'),
           _field(_addressController, 'Company Address', maxLines: 2),
@@ -177,10 +154,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             icon: const Icon(Icons.image),
             label: const Text('Upload Company Logo'),
           ),
-          const SizedBox(height: 16),
-          Text('Uploaded Logo', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          _logoPreview(),
           const SizedBox(height: 16),
           if (_isEditing)
             Row(
@@ -220,36 +193,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _logoPreview() {
-    final logoPath = _logoPathController.text.trim();
-    final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
-
-    if (!hasLogo) {
-      return const ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(Icons.image_not_supported_outlined),
-        title: Text('No logo uploaded.'),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.file(
-        File(logoPath),
-        height: 140,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return const ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.broken_image_outlined),
-            title: Text('Unable to load uploaded logo.'),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _profileHeader() {
     final logoPath = _logoPathController.text.trim();
     final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
@@ -257,14 +200,20 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     return Column(
       children: [
         CircleAvatar(
-          radius: 40,
+          radius: 54,
           backgroundColor: Colors.white,
           backgroundImage: hasLogo ? FileImage(File(logoPath)) : null,
-          child: hasLogo ? null : const Icon(Icons.business, size: 36),
+          child: hasLogo
+              ? null
+              : Icon(
+                  Icons.image_outlined,
+                  size: 42,
+                  color: Colors.grey.shade500,
+                ),
         ),
         const SizedBox(height: 10),
         Text(
-          _nameController.text.trim().isEmpty ? 'Owner Name' : _nameController.text.trim(),
+          _nameController.text.trim().isEmpty ? 'Company Name' : _nameController.text.trim(),
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 2),
@@ -275,44 +224,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           style: const TextStyle(color: Colors.black54),
         ),
       ],
-    );
-  }
-
-  Widget _statStrip({
-    required int pending,
-    required int approved,
-    required int clients,
-  }) {
-    Widget statCell(String label, String value) {
-      return Expanded(
-        child: Column(
-          children: [
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF42B994),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          statCell('Pending', '$pending'),
-          Container(width: 1, height: 28, color: Colors.white38),
-          statCell('Approved', '$approved'),
-          Container(width: 1, height: 28, color: Colors.white38),
-          statCell('Clients', '$clients'),
-        ],
-      ),
     );
   }
 

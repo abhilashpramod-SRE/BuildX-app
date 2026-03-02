@@ -29,6 +29,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   bool _isEditing = true;
 
+  bool _isEditing = true;
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +118,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           if (!_isEditing)
             TextButton.icon(
               onPressed: () => setState(() => _isEditing = true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+              ),
               icon: const Icon(Icons.edit),
               label: const Text('Edit'),
             ),

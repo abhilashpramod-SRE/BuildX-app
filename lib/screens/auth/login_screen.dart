@@ -114,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(28),
           child: Image.file(
             File(logoPath),
-            width: 110,
-            height: 110,
+            width: 130,
+            height: 130,
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => const _FallbackLogoIcon(),
           ),
@@ -131,10 +131,14 @@ class _FallbackLogoIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.business,
-      size: 100,
-      color: Theme.of(context).colorScheme.secondary,
+    return CircleAvatar(
+      radius: 65,
+      backgroundColor: Colors.white,
+      child: Icon(
+        Icons.image_outlined,
+        size: 52,
+        color: Colors.grey.shade500,
+      ),
     );
   }
 }

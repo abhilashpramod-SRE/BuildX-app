@@ -218,36 +218,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _logoPreview() {
-    final logoPath = _logoPathController.text.trim();
-    final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
-
-    if (!hasLogo) {
-      return const ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(Icons.image_not_supported_outlined),
-        title: Text('No logo uploaded.'),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.file(
-        File(logoPath),
-        height: 140,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return const ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.broken_image_outlined),
-            title: Text('Unable to load uploaded logo.'),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _profileHeader() {
     final logoPath = _logoPathController.text.trim();
     final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
@@ -255,14 +225,20 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     return Column(
       children: [
         CircleAvatar(
-          radius: 40,
+          radius: 54,
           backgroundColor: Colors.white,
           backgroundImage: hasLogo ? FileImage(File(logoPath)) : null,
-          child: hasLogo ? null : const Icon(Icons.business, size: 36),
+          child: hasLogo
+              ? null
+              : Icon(
+                  Icons.image_outlined,
+                  size: 42,
+                  color: Colors.grey.shade500,
+                ),
         ),
         const SizedBox(height: 10),
         Text(
-          _nameController.text.trim().isEmpty ? 'Owner Name' : _nameController.text.trim(),
+          _nameController.text.trim().isEmpty ? 'Company Name' : _nameController.text.trim(),
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 2),
@@ -273,44 +249,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           style: const TextStyle(color: Colors.black54),
         ),
       ],
-    );
-  }
-
-  Widget _statStrip({
-    required int pending,
-    required int approved,
-    required int clients,
-  }) {
-    Widget statCell(String label, String value) {
-      return Expanded(
-        child: Column(
-          children: [
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF42B994),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          statCell('Pending', '$pending'),
-          Container(width: 1, height: 28, color: Colors.white38),
-          statCell('Approved', '$approved'),
-          Container(width: 1, height: 28, color: Colors.white38),
-          statCell('Clients', '$clients'),
-        ],
-      ),
     );
   }
 

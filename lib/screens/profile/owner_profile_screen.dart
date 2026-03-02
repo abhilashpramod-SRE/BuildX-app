@@ -25,6 +25,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _stateCodeController;
   late final TextEditingController _emailController;
   late final TextEditingController _logoPathController;
+  bool _isEditing = true;
+
+  bool _isEditing = true;
+
+  bool _isEditing = true;
 
   bool _isEditing = true;
 
@@ -106,6 +111,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     final approved = vm.approvedExpenses().length;
     final clients = vm.allClients().length;
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Profile'),

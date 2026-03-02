@@ -164,7 +164,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const ApprovedBillsScreen()),
           );
         }),
-        _cardAction('Register / Manage Clients', Icons.people, () {
+        _cardAction('Register Client', Icons.people, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
@@ -238,7 +238,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         const SizedBox(height: 8),
         _metricCard('Bills Pending Approval', '$pending', Icons.approval),
         _metricCard('Bills Approved', '$approved', Icons.verified),
-        _metricCard('Registered Clients', '$clients', Icons.people),
+        _metricCard('Register Client', '$clients', Icons.people),
         _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
         _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         const SizedBox(height: 12),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme.dart';
 import '../../models/expense.dart';
 import '../../models/role.dart';
 import '../../viewmodels/app_view_model.dart';
@@ -52,11 +53,11 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         actions: [
           Row(
             children: [
-              const Text('Online', style: TextStyle(color: Colors.white)),
+              const Text('Online'),
               Switch(
                 value: vm.isOnline,
                 onChanged: (v) async => vm.setOnline(v),
-                activeColor: Colors.orange,
+                activeColor: BuildXTheme.accentOrange,
               ),
             ],
           ),
@@ -98,6 +99,11 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _heroSummary(
+          title: 'Contractor Workspace',
+          subtitle: 'Submit and track your bills quickly.',
+        ),
+        const SizedBox(height: 12),
         _cardAction('Upload Expense', Icons.upload_file, () {
           Navigator.push(
             context,
@@ -105,7 +111,11 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           );
         }),
         const SizedBox(height: 12),
-        const ExpenseListWidget(title: 'My Recent Submitted Bills', mineOnly: true),
+        const ExpenseListWidget(
+          title: 'My Recent Submitted Bills',
+          mineOnly: true,
+          emptyMessage: 'No submitted bills yet.',
+        ),
       ],
     );
   }
@@ -131,7 +141,12 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _cardAction('Bills Pending Approval', Icons.approval, () {
+        _heroSummary(
+          title: 'Owner Console',
+          subtitle: 'Manage approvals, clients and invoices.',
+        ),
+        const SizedBox(height: 12),
+        _cardAction('Pending Approval', Icons.approval, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ApprovalScreen()),
@@ -143,7 +158,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const ApprovedBillsScreen()),
           );
         }),
-        _cardAction('Register / Manage Clients', Icons.people, () {
+        _cardAction('Register Client', Icons.people, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
@@ -194,9 +209,30 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
+        Row(
+          children: [
+            Expanded(
+              child: _cardAction('Pending Approval', Icons.approval, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ApprovalScreen()),
+                );
+              }),
+            ),
+            Expanded(
+              child: _cardAction('Register Client', Icons.people, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
+                );
+              }),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _metricCard('Pending Approval', '$pending', Icons.approval),
         _metricCard('Bills Approved', '$approved', Icons.verified),
-        _metricCard('Registered Clients', '$clients', Icons.people),
+        _metricCard('Register Client', '$clients', Icons.people),
         _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
         _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         const SizedBox(height: 12),
@@ -220,6 +256,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
 
   Widget _cardAction(String title, IconData icon, VoidCallback onTap) {
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: ListTile(
         minVerticalPadding: 14,
         leading: Icon(icon, color: Theme.of(context).colorScheme.secondary),
@@ -231,6 +268,34 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _heroSummary({required String title, required String subtitle}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: BuildXTheme.slateBlue,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.white70),
+          ),
+        ],
       ),
     );
   }

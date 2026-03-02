@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../../models/company_profile.dart';
 import '../../viewmodels/app_view_model.dart';
+import '../approval/approval_screen.dart';
+import '../client/client_registration_screen.dart';
 
 class OwnerProfileScreen extends StatefulWidget {
   const OwnerProfileScreen({super.key});
@@ -127,8 +129,26 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           _statStrip(pending: pending, approved: approved, clients: clients),
           const SizedBox(height: 12),
           _menuTile(Icons.person_outline, 'Personal Information'),
-          _menuTile(Icons.people_outline, 'Register Client'),
-          _menuTile(Icons.approval_outlined, 'Pending Approval'),
+          _menuTile(
+            Icons.people_outline,
+            'Register Client',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
+              );
+            },
+          ),
+          _menuTile(
+            Icons.approval_outlined,
+            'Pending Approval',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ApprovalScreen()),
+              );
+            },
+          ),
           const SizedBox(height: 16),
           Text(
             'Edit Details',
@@ -295,7 +315,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _menuTile(IconData icon, String title) {
+  Widget _menuTile(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: const Color(0xFF42B994)),
@@ -303,6 +323,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         title,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
+      trailing: onTap != null ? const Icon(Icons.chevron_right) : null,
+      onTap: onTap,
     );
   }
 }

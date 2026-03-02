@@ -22,78 +22,83 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final logoPath = context.watch<AppViewModel>().ownerProfile.logoPath;
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'BuildX',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 12),
+                _buildLogo(logoPath),
+                const SizedBox(height: 18),
+                Text(
+                  'Welcome to BuildX',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Track project expenses, approvals and invoices.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _identityController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'Enter your email',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'Enter your password',
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<UserRole>(
+                  value: _selectedRole,
+                  isExpanded: true,
+                  items: UserRole.values
+                      .map(
+                        (role) => DropdownMenuItem(
+                          value: role,
+                          child: Text(role.label),
                         ),
-                  ),
-                  const SizedBox(height: 14),
-                  _buildLogo(logoPath),
-                  const SizedBox(height: 12),
-                  Text(
-                    'LOGIN',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _identityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email ID',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<UserRole>(
-                    value: _selectedRole,
-                    isExpanded: true,
-                    items: UserRole.values
-                        .map(
-                          (role) => DropdownMenuItem(
-                            value: role,
-                            child: Text(role.label),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) => setState(() => _selectedRole = value!),
-                    decoration: const InputDecoration(labelText: 'Role'),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _loading
-                        ? null
-                        : () async {
-                            setState(() => _loading = true);
-                            await context.read<AppViewModel>().login(
-                                  _identityController.text,
-                                  _passwordController.text,
-                                  _selectedRole,
-                                );
-                            if (mounted) setState(() => _loading = false);
-                          },
-                    child: Text(_loading ? 'Logging in...' : 'Login'),
-                  ),
-                ],
-              ),
+                      )
+                      .toList(),
+                  onChanged: (value) => setState(() => _selectedRole = value!),
+                  decoration: const InputDecoration(labelText: 'Role'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _loading
+                      ? null
+                      : () async {
+                          setState(() => _loading = true);
+                          await context.read<AppViewModel>().login(
+                                _identityController.text,
+                                _passwordController.text,
+                                _selectedRole,
+                              );
+                          if (mounted) setState(() => _loading = false);
+                        },
+                  child: Text(_loading ? 'Logging in...' : 'Login'),
+                ),
+              ],
             ),
           ),
         ),
@@ -104,14 +109,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLogo(String? logoPath) {
     final hasLogoPath = logoPath != null && logoPath.trim().isNotEmpty;
     if (hasLogoPath && File(logoPath).existsSync()) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Image.file(
-          File(logoPath),
-          width: 96,
-          height: 96,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const _FallbackLogoIcon(),
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Image.file(
+            File(logoPath),
+            width: 110,
+            height: 110,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const _FallbackLogoIcon(),
+          ),
         ),
       );
     }
@@ -125,8 +132,8 @@ class _FallbackLogoIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      Icons.receipt_long_rounded,
-      size: 96,
+      Icons.business,
+      size: 100,
       color: Theme.of(context).colorScheme.secondary,
     );
   }

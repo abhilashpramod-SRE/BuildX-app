@@ -100,6 +100,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<AppViewModel>();
+    final pending = vm.pendingExpenses().length;
+    final approved = vm.approvedExpenses().length;
+    final clients = vm.allClients().length;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Profile'),
@@ -107,14 +114,29 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           if (!_isEditing)
             TextButton.icon(
               onPressed: () => setState(() => _isEditing = true),
-              icon: const Icon(Icons.edit, color: Colors.white),
-              label: const Text('Edit', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.edit),
+              label: const Text('Edit'),
             ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _profileHeader(),
+          const SizedBox(height: 12),
+          _statStrip(pending: pending, approved: approved, clients: clients),
+          const SizedBox(height: 12),
+          _menuTile(Icons.person_outline, 'Personal Information'),
+          _menuTile(Icons.people_outline, 'Register Client'),
+          _menuTile(Icons.approval_outlined, 'Pending Approval'),
+          const SizedBox(height: 16),
+          Text(
+            'Edit Details',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 8),
           _field(_nameController, 'Company Name'),
           _field(_taglineController, 'Company Tagline / Legal Suffix'),
           _field(_addressController, 'Company Address', maxLines: 2),
@@ -200,6 +222,86 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             title: Text('Unable to load uploaded logo.'),
           );
         },
+      ),
+    );
+  }
+
+  Widget _profileHeader() {
+    final logoPath = _logoPathController.text.trim();
+    final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
+
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 40,
+          backgroundColor: Colors.white,
+          backgroundImage: hasLogo ? FileImage(File(logoPath)) : null,
+          child: hasLogo ? null : const Icon(Icons.business, size: 36),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          _nameController.text.trim().isEmpty ? 'Owner Name' : _nameController.text.trim(),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          _stateNameController.text.trim().isEmpty
+              ? 'Location not set'
+              : _stateNameController.text.trim(),
+          style: const TextStyle(color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  Widget _statStrip({
+    required int pending,
+    required int approved,
+    required int clients,
+  }) {
+    Widget statCell(String label, String value) {
+      return Expanded(
+        child: Column(
+          children: [
+            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF42B994),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          statCell('Pending', '$pending'),
+          Container(width: 1, height: 28, color: Colors.white38),
+          statCell('Approved', '$approved'),
+          Container(width: 1, height: 28, color: Colors.white38),
+          statCell('Clients', '$clients'),
+        ],
+      ),
+    );
+  }
+
+  Widget _menuTile(IconData icon, String title) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: const Color(0xFF42B994)),
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.w500),
       ),
     );
   }

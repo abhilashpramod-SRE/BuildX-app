@@ -18,6 +18,15 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
   final _projectInputController = TextEditingController();
   final List<String> _projects = <String>[];
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _projectInputController.dispose();
+    super.dispose();
+  }
+
   void _addProject() {
     final value = _projectInputController.text.trim();
     if (value.isEmpty) return;
@@ -31,6 +40,7 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AppViewModel>();
+    final clients = vm.allClients();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Register Client')),
@@ -87,13 +97,24 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
+              final name = _nameController.text.trim();
+              final address = _addressController.text.trim();
+              final phone = _phoneController.text.trim();
+              if (name.isEmpty || address.isEmpty || phone.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill all required client fields.')),
+                );
+                return;
+              }
+
               final client = await vm.registerClient(
-                name: _nameController.text.trim(),
-                address: _addressController.text.trim(),
-                phone: _phoneController.text.trim(),
+                name: name,
+                address: address,
+                phone: phone,
                 projects: _projects,
               );
               if (!mounted) return;
+
               _nameController.clear();
               _addressController.clear();
               _phoneController.clear();
@@ -108,10 +129,10 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
           const SizedBox(height: 20),
           Text('Clients', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          if (vm.repository.clients.isEmpty)
+          if (clients.isEmpty)
             const Text('Nothing to show.')
           else
-            ...vm.repository.clients.map(
+            ...clients.map(
               (c) => Card(
                 child: ListTile(
                   title: Text(c.name),
@@ -147,11 +168,20 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Client Name')),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Client Name'),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Client Address')),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Client Address'),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Client Phone Number')),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Client Phone Number'),
+                ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -206,10 +236,15 @@ class _ClientRegistrationScreenState extends State<ClientRegistrationScreen> {
                 Navigator.pop(context);
               },
               child: const Text('Save'),
-            )
+            ),
           ],
         ),
       ),
     );
+
+    nameController.dispose();
+    addressController.dispose();
+    phoneController.dispose();
+    projectController.dispose();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -127,6 +129,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             label: const Text('Upload Company Logo'),
           ),
           const SizedBox(height: 16),
+          Text(
+            'Uploaded Logo',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          _logoPreview(),
+          const SizedBox(height: 16),
           if (_isEditing)
             Row(
               children: [
@@ -161,6 +170,36 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         maxLines: maxLines,
         readOnly: !_isEditing,
         decoration: InputDecoration(labelText: label),
+      ),
+    );
+  }
+
+  Widget _logoPreview() {
+    final logoPath = _logoPathController.text.trim();
+    final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
+
+    if (!hasLogo) {
+      return const ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(Icons.image_not_supported_outlined),
+        title: Text('No logo uploaded.'),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.file(
+        File(logoPath),
+        height: 140,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return const ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.broken_image_outlined),
+            title: Text('Unable to load uploaded logo.'),
+          );
+        },
       ),
     );
   }

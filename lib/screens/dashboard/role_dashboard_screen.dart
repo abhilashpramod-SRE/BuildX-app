@@ -198,9 +198,9 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
+        _metricCard('Pending Approval', '$pending', Icons.approval),
         _metricCard('Bills Approved', '$approved', Icons.verified),
-        _metricCard('Registered Clients', '$clients', Icons.people),
+        _metricCard('Register Client', '$clients', Icons.people),
         _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),
         _metricCard('Invoices Generated', '$invoicesGenerated', Icons.receipt_long),
         const SizedBox(height: 12),

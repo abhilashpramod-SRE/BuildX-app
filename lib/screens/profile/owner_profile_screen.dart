@@ -27,12 +27,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _logoPathController;
   bool _isEditing = true;
 
-  bool _isEditing = true;
-
-  bool _isEditing = true;
-
-  bool _isEditing = true;
-
   @override
   void initState() {
     super.initState();
@@ -66,9 +60,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _logoPathController.text = picked.path);
-    }
+    if (picked == null || !mounted) return;
+    setState(() => _logoPathController.text = picked.path);
   }
 
   void _reloadFromSavedProfile() {
@@ -111,8 +104,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     final approved = vm.approvedExpenses().length;
     final clients = vm.allClients().length;
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Profile'),

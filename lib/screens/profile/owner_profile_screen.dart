@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +23,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   late final TextEditingController _stateCodeController;
   late final TextEditingController _emailController;
   late final TextEditingController _logoPathController;
+  bool _isEditing = true;
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     _stateCodeController = TextEditingController(text: profile.stateCode);
     _emailController = TextEditingController(text: profile.emailId);
     _logoPathController = TextEditingController(text: profile.logoPath ?? '');
+    _isEditing = profile.name.trim().isEmpty;
   }
 
   @override
@@ -50,6 +54,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   }
 
   Future<void> _pickLogo() async {
+    if (!_isEditing) {
+      return;
+    }
+
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
@@ -57,12 +65,53 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     }
   }
 
+  void _reloadFromSavedProfile() {
+    final profile = context.read<AppViewModel>().ownerProfile;
+    _nameController.text = profile.name;
+    _taglineController.text = profile.tagline;
+    _addressController.text = profile.address;
+    _gstinController.text = profile.gstinUin;
+    _stateNameController.text = profile.stateName;
+    _stateCodeController.text = profile.stateCode;
+    _emailController.text = profile.emailId;
+    _logoPathController.text = profile.logoPath ?? '';
+  }
+
+  void _saveProfile() {
+    final vm = context.read<AppViewModel>();
+    final profile = CompanyProfile(
+      name: _nameController.text.trim(),
+      tagline: _taglineController.text.trim(),
+      address: _addressController.text.trim(),
+      gstinUin: _gstinController.text.trim(),
+      stateName: _stateNameController.text.trim(),
+      stateCode: _stateCodeController.text.trim(),
+      emailId: _emailController.text.trim(),
+      logoPath: _logoPathController.text.trim().isEmpty
+          ? null
+          : _logoPathController.text.trim(),
+    );
+    vm.updateOwnerProfile(profile);
+    setState(() => _isEditing = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Owner profile updated.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<AppViewModel>();
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Owner Profile')),
+      appBar: AppBar(
+        title: const Text('Owner Profile'),
+        actions: [
+          if (!_isEditing)
+            TextButton.icon(
+              onPressed: () => setState(() => _isEditing = true),
+              icon: const Icon(Icons.edit, color: Colors.white),
+              label: const Text('Edit', style: TextStyle(color: Colors.white)),
+            ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -73,37 +122,41 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           _field(_stateNameController, 'State Name'),
           _field(_stateCodeController, 'State Code'),
           _field(_emailController, 'Company Email Id'),
-          _field(_logoPathController, 'Logo Path on Device (optional)'),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: _pickLogo,
+            onPressed: _isEditing ? _pickLogo : null,
             icon: const Icon(Icons.image),
             label: const Text('Upload Company Logo'),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              final profile = CompanyProfile(
-                name: _nameController.text.trim(),
-                tagline: _taglineController.text.trim(),
-                address: _addressController.text.trim(),
-                gstinUin: _gstinController.text.trim(),
-                stateName: _stateNameController.text.trim(),
-                stateCode: _stateCodeController.text.trim(),
-                emailId: _emailController.text.trim(),
-                logoPath: _logoPathController.text.trim().isEmpty
-                    ? null
-                    : _logoPathController.text.trim(),
-              );
-
-              vm.updateOwnerProfile(profile);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Owner profile updated.')),
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Save Profile'),
-          )
+          Text(
+            'Uploaded Logo',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          _logoPreview(),
+          const SizedBox(height: 16),
+          if (_isEditing)
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _saveProfile,
+                    child: const Text('Save Profile'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      _reloadFromSavedProfile();
+                      setState(() => _isEditing = false);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                ),
+              ],
+            )
         ],
       ),
     );
@@ -115,7 +168,38 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
       child: TextField(
         controller: c,
         maxLines: maxLines,
+        readOnly: !_isEditing,
         decoration: InputDecoration(labelText: label),
+      ),
+    );
+  }
+
+  Widget _logoPreview() {
+    final logoPath = _logoPathController.text.trim();
+    final hasLogo = logoPath.isNotEmpty && File(logoPath).existsSync();
+
+    if (!hasLogo) {
+      return const ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(Icons.image_not_supported_outlined),
+        title: Text('No logo uploaded.'),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.file(
+        File(logoPath),
+        height: 140,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return const ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.broken_image_outlined),
+            title: Text('Unable to load uploaded logo.'),
+          );
+        },
       ),
     );
   }

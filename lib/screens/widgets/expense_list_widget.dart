@@ -12,11 +12,13 @@ class ExpenseListWidget extends StatelessWidget {
     required this.title,
     this.mineOnly = false,
     this.approvedOnly = false,
+    this.emptyMessage = 'Nothing to show.',
   });
 
   final String title;
   final bool mineOnly;
   final bool approvedOnly;
+  final String emptyMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,7 @@ class ExpenseListWidget extends StatelessWidget {
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             if (expenses.isEmpty)
-              const Text('Nothing to show.')
+              Text(emptyMessage)
             else
               ...expenses.map(
                 (e) => ListTile(

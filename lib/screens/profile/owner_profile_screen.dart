@@ -31,6 +31,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   bool _isEditing = true;
 
+  bool _isEditing = true;
+
   @override
   void initState() {
     super.initState();
@@ -136,7 +138,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           _menuTile(Icons.person_outline, 'Personal Information'),
           _menuTile(
             Icons.people_outline,
-            'Register Client',
+            'Register / Manage Clients',
             onTap: () {
               Navigator.push(
                 context,
@@ -146,7 +148,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           ),
           _menuTile(
             Icons.approval_outlined,
-            'Pending Approval',
+            'Bills Pending Approval',
             onTap: () {
               Navigator.push(
                 context,

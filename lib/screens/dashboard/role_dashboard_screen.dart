@@ -110,6 +110,12 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
             MaterialPageRoute(builder: (_) => const ExpenseUploadScreen()),
           );
         }),
+        _cardAction('My Submitted Bills', Icons.receipt_long, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SubmittedBillsScreen()),
+          );
+        }),
         const SizedBox(height: 12),
         const ExpenseListWidget(
           title: 'My Recent Submitted Bills',
@@ -146,7 +152,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           subtitle: 'Manage approvals, clients and invoices.',
         ),
         const SizedBox(height: 12),
-        _cardAction('Pending Approval', Icons.approval, () {
+        _cardAction('Bills Pending Approval', Icons.approval, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ApprovalScreen()),
@@ -215,12 +221,12 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
               child: _cardAction('Pending Approval', Icons.approval, () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const ApprovalScreen()),
-                );
-              }),
-            ),
-            Expanded(
-              child: _cardAction('Register Client', Icons.people, () {
+                MaterialPageRoute(builder: (_) => const ApprovalScreen()),
+              );
+            }),
+          ),
+          Expanded(
+              child: _cardAction('Register / Manage Clients', Icons.people, () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const ClientRegistrationScreen()),
@@ -230,7 +236,7 @@ class _RoleDashboardScreenState extends State<RoleDashboardScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        _metricCard('Pending Approval', '$pending', Icons.approval),
+        _metricCard('Bills Pending Approval', '$pending', Icons.approval),
         _metricCard('Bills Approved', '$approved', Icons.verified),
         _metricCard('Register Client', '$clients', Icons.people),
         _metricCard('Invoices to Generate', '$toGenerate', Icons.assignment_late),

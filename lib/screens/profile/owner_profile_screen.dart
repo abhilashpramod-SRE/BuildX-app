@@ -164,20 +164,20 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     child: const Text('Save Profile'),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _reloadFromSavedProfile();
-                      setState(() => _isEditing = false);
-                    },
-                    child: const Text('Cancel'),
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    _reloadFromSavedProfile();
+                    setState(() => _isEditing = false);
+                  },
+                  child: const Text('Cancel'),
                 ),
-              ],
-            ),
-        ],
-      ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 
